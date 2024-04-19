@@ -96,6 +96,21 @@ public class UserService {
     }
 
 
+    public User update(HttpServletRequest request, String fullname) {
+        String authorizationHeader = request.getHeader("Authorization");
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            String token = authorizationHeader.substring(7); // Remove "Bearer " prefix
+            Token jwt = tokenRepository.findByToken(token).orElseThrow(() -> new RuntimeException("Token not found"));
+            if (!jwt.isExpired() && !jwt.isRevoked()) {
+                User user = jwt.getUser();
+                user.setFullname(fullname);
+                return userRepository.save(user);
+            } else {
+                throw new RuntimeException("Token invalide");
+            }
+        } else {
+            throw new RuntimeException("Authorization header missing or invalid");
+        }
 
-
+    }
 }

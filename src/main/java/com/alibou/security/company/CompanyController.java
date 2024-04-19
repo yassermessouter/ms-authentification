@@ -42,6 +42,14 @@ public class CompanyController {
         return companyService.getCompanyInfos(request);
     }
 
+    @PutMapping("/update-company-infos")
+    public Company updateCompanyInfos(
+            HttpServletRequest request,
+            @RequestBody CompanyRequestDto companyRequest
+    ){
+        return companyService.update(request,companyRequest);
+    }
+
 
 
 

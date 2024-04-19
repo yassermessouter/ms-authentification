@@ -53,6 +53,15 @@ public class UserController {
         return userService.changePassword(request,passwordChangedDto);
     }
 
+    @PutMapping("/update-user-infos")
+    public User update(
+            HttpServletRequest request,
+            @RequestBody String fullname
+
+    ){
+        return userService.update(request,fullname);
+    }
+
 
 
 

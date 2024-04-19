@@ -85,4 +85,26 @@ public class CompanyService {
             throw new RuntimeException("Authorization header missing or invalid");
         }
     }
+
+    public Company update(HttpServletRequest request,CompanyRequestDto companyRequestDto) {
+        String authorizationHeader = request.getHeader("Authorization");
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            String token = authorizationHeader.substring(7); // Remove "Bearer " prefix
+            Token jwt = tokenRepository.findByToken(token).orElseThrow(() -> new RuntimeException("Token not found"));
+            if (!jwt.isExpired() && !jwt.isRevoked()) {
+                User user = jwt.getUser();
+                Company company=user.getCompany();
+                company.setName(companyRequestDto.getName());
+                company.setAddress(companyRequestDto.getAddress());
+                company.setWilayaList(companyRequestDto.getWilayaList());
+                company.setRegionList(companyRequestDto.getRegionList());
+                company.setSectorList(companyRequestDto.getSectorList());
+                return companyRepository.save(company);
+            } else {
+                throw new RuntimeException("Token invalide");
+            }
+        } else {
+            throw new RuntimeException("Authorization header missing or invalid");
+        }
+    }
 }
