@@ -15,7 +15,8 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class CompanyUpdatedDto {
-    private String name;
+    private String email;
+    private String companyName;
     @Enumerated(EnumType.STRING)
     private StateType stateType;
     private List<Category> categories;

@@ -12,14 +12,17 @@ import com.alibou.security.token.TokenRepository;
 import com.alibou.security.token.TokenType;
 import com.alibou.security.user.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -39,7 +42,10 @@ public class AuthenticationService {
   private final CompanyRepository companyRepository;
   private final EmailSenderService emailSenderService;
 
-  public User userRegister(RegisterRequest request) {
+  @Autowired
+  FileUploadProxy fileUploadProxy;
+
+  public String userRegister(RegisterRequest request) {
     Optional<User> existingUser = userRepository.findByEmail(request.getEmail());
     if (existingUser.isEmpty()) {
       Company company = Company.builder()
@@ -67,17 +73,22 @@ public class AuthenticationService {
               .company(savedCompany)
               .role(savedRole)
               .build();
-      return userRepository.save(user);
+      userRepository.save(user);
+      return "user created successfully";
     } else {
       throw new RuntimeException("Email already exists: " + request.getEmail());
     }
   }
 
-  public Company companyRegister(CompanyDto companyDto) {
+
+  public String companyRegister(CompanyDto companyDto,List<MultipartFile> files) {
     Company savedCompany = companyRepository.findByName(companyDto.getName()).orElseThrow();
     savedCompany.setAddress(companyDto.getAddress());
-    savedCompany.setTradeRegistry(companyDto.getTradeRegistry());
-    return companyRepository.save(savedCompany);
+//    savedCompany.setFileUrls();
+    companyRepository.save(savedCompany);
+    return "Company created successfully";
+
+
   }
 
   public AuthenticationResponse authenticate(AuthenticationRequest request) {
@@ -153,6 +164,20 @@ public class AuthenticationService {
     }
   }
 
+  public String sendSetupEmail(String email,String companyName) {
+
+    String subject = "Your Account Activation";
+    String message = "Hello,\n" +
+            "\n" +
+            "We hope this email finds you well. We wanted to inform you that your account for " +companyName+" Company has" +
+            " been successfully activated. Thank you for choosing us as your service provider.\n" +
+            "Please follow the link to complete the setup of your company information: http://localhost:8080/api/v1/auth/setup/"+companyName+
+            "\n" +
+            "Thank you,\n";
+    emailSenderService.sendEmail(email, subject, message);
+    return "email sended";
+  }
+
   public String sendEmail(String email) {
     User user = userRepository.findByEmail(email)
             .orElseThrow(() -> new NoSuchElementException("User not found for email: " + email));
@@ -170,6 +195,7 @@ public class AuthenticationService {
     emailSenderService.sendEmail(email, subject, message);
     return "email sended";
   }
+
 
   public String resetPassword(PasswordDto passwordDto) {
     Token token=tokenRepository.findByToken(passwordDto.getToken()).orElseThrow();
@@ -235,21 +261,29 @@ public class AuthenticationService {
     return jwt.passwordforgetten;
   }
 
+  public Boolean isAdminRegister(){
+    Optional<User> user=userRepository.findByEmail("admin@gmail.com");
+    return user.isPresent();
+
+  }
+
 
   public String AdminRegister() {
     RegisterRequest request=RegisterRequest.builder()
             .companyName("Supplier")
             .email("admin@gmail.com")
-            .fullname("admin")
+            .fullname("superadmin")
             .password("aaa")
             .build();
-    User user=userRegister(request);
+    if (!isAdminRegister())  { userRegister(request); };
+    User user=userRepository.findByEmail("admin@gmail.com").orElseThrow();
     List<Permission> permissions=new ArrayList<>();
     permissions.add(Permission.SUPERADMIN);
     Role role=user.getRole();
     role.setPermissions(permissions);
     user.setStateType(StateType.ACTIVE);
     Company company=user.getCompany();
+    company.setAddress("sba");
     roleRepository.save(role);
     company.setStateType(StateType.ACTIVE);
     userRepository.save(user);

@@ -1,9 +1,7 @@
 package com.alibou.security.company;
 
-import com.alibou.security.delivery.Region;
 import com.alibou.security.delivery.Sector;
 import com.alibou.security.delivery.Wilaya;
-import com.alibou.security.role.Permission;
 import com.alibou.security.role.Role;
 import com.alibou.security.user.StateType;
 import com.alibou.security.user.User;
@@ -14,6 +12,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -28,13 +27,15 @@ public class Company {
     @Column(unique = true)
     private String name;
     private String address;
-    private String tradeRegistry;
     @Enumerated(EnumType.STRING)
     private StateType stateType;
     @ElementCollection(targetClass = Category.class)
     @Enumerated(EnumType.STRING)
     @CollectionTable(name = "company_categories",joinColumns = @JoinColumn(name = "company_id"))
     private List<Category> categories;
+    @OneToMany(mappedBy = "company")
+    @JsonManagedReference
+    private List<FileMetadata> fileUrls;
 
     @OneToMany(mappedBy = "company")
     @JsonManagedReference
@@ -44,9 +45,6 @@ public class Company {
     @JsonManagedReference
     private List<Wilaya> wilayaList;
 
-    @OneToMany(mappedBy = "company")
-    @JsonManagedReference
-    private List<Region> regionList;
 
     @OneToMany(mappedBy = "company")
     @JsonManagedReference

@@ -1,5 +1,6 @@
 package com.alibou.security.config;
 
+import com.alibou.security.auth.FileUploadProxy;
 import com.alibou.security.user.UserRepository;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @Configuration
 @RequiredArgsConstructor
@@ -26,6 +30,7 @@ public class ApplicationConfig {
     return username -> repository.findByEmail(username)
         .orElseThrow(() -> new UsernameNotFoundException("User not found"));
   }
+
 
   @Bean
   public AuthenticationProvider authenticationProvider() {

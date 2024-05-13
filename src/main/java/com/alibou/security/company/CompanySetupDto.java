@@ -1,8 +1,6 @@
 package com.alibou.security.company;
 
-import com.alibou.security.delivery.RegionDto;
 import com.alibou.security.delivery.SectorDto;
-import com.alibou.security.delivery.Wilaya;
 import com.alibou.security.delivery.WilayaDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,6 +16,5 @@ import java.util.List;
 public class CompanySetupDto {
     private String name;
     private List<WilayaDto> wilayaList;
-    private List<RegionDto> regionList;
     private List<SectorDto> sectorList;
 }

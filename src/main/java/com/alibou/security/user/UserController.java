@@ -29,8 +29,8 @@ public class UserController {
         return userService.showUsers(companyName);
     }
 
-    @PutMapping("/users")
-    public User editUser(
+    @PatchMapping("/users")
+    public String editUser(
             @RequestBody UserUpdatedDto userUpdatedDto
     ){
         return userService.editUser(userUpdatedDto);
@@ -54,7 +54,7 @@ public class UserController {
     }
 
     @PutMapping("/update-user-infos")
-    public User update(
+    public String update(
             HttpServletRequest request,
             @RequestBody String fullname
 

@@ -1,17 +1,16 @@
-package com.alibou.security.company;
+package com.alibou.security.config;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Builder
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CompanyDto {
-    private String name;
-    private String address;
+public class JwtDto {
+    private Boolean isValid;
+    private Integer userId;
+
 }

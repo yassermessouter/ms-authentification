@@ -11,11 +11,14 @@ import com.alibou.security.user.UserDto;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -27,17 +30,18 @@ public class AuthenticationController {
   private final CompanyService companyService;
 
   @PostMapping("/register/user-infos")
-  public User userRegister(
+  public String userRegister(
       @RequestBody RegisterRequest request
   ) {
     return authenticationService.userRegister(request);
   }
 
   @PostMapping("/register/company-infos")
-  public Company companyRegister(
-          @RequestBody CompanyDto companyDto
+  public String companyRegister(
+          @ModelAttribute CompanyDto companyDto,
+          @RequestParam("files") List<MultipartFile> files
           ){
-    return authenticationService.companyRegister(companyDto);
+    return authenticationService.companyRegister(companyDto, files);
   }
 
 
@@ -90,6 +94,8 @@ public class AuthenticationController {
   ){
       return ResponseEntity.ok(authenticationService.authenticateMembre(request));
   }
+
+
 
 
 

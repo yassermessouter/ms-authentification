@@ -1,14 +1,10 @@
 package com.alibou.security.company;
 
-import com.alibou.security.delivery.Wilaya;
-import com.alibou.security.delivery.WilayaRepository;
+
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
-import java.util.stream.Collectors;
-
 @RestController
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor
@@ -20,6 +16,7 @@ public class CompanyController {
         return companyService.findAllCompanies();
     }
 
+
     @GetMapping("/companies/{company-name}")
     public CompanyDetailsDto findCompanyByName(
             @PathVariable("company-name") String name
@@ -27,7 +24,7 @@ public class CompanyController {
         return companyService.findCompanyByname(name);
     }
 
-    @PutMapping("/companies/{company-name}")
+    @PutMapping("/companie")
     public String updateCompanyDetails(
             @RequestBody CompanyUpdatedDto companyUpdatedDto
     ){
@@ -43,7 +40,7 @@ public class CompanyController {
     }
 
     @PutMapping("/update-company-infos")
-    public Company updateCompanyInfos(
+    public String updateCompanyInfos(
             HttpServletRequest request,
             @RequestBody CompanyRequestDto companyRequest
     ){

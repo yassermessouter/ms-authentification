@@ -17,7 +17,7 @@ import java.util.List;
 public class CompanyDetailsDto {
     private String name;
     private String address;
-    private String tradeRegistry;
+    private List<FileMetadata> fileUrls;
     @Enumerated(EnumType.STRING)
     private StateType stateType;
     private List<Category> categories;

@@ -1,6 +1,5 @@
-package com.alibou.security.delivery;
+package com.alibou.security.company;
 
-import com.alibou.security.company.Company;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -9,21 +8,20 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Builder
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Region {
+@Builder
+public class FileMetadata {
+
     @Id
     @GeneratedValue
     private Integer id;
-    private String name;
-    private String date;
+    private String fileUrl;
+
 
     @ManyToOne
-    @JoinColumn(
-            name = "company_id"
-    )
+    @JoinColumn(name = "company_id")
     @JsonBackReference
     private Company company;
 
