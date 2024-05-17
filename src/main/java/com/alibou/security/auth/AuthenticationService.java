@@ -42,9 +42,6 @@ public class AuthenticationService {
   private final CompanyRepository companyRepository;
   private final EmailSenderService emailSenderService;
 
-  @Autowired
-  FileUploadProxy fileUploadProxy;
-
   public String userRegister(RegisterRequest request) {
     Optional<User> existingUser = userRepository.findByEmail(request.getEmail());
     if (existingUser.isEmpty()) {
@@ -59,7 +56,7 @@ public class AuthenticationService {
                       Permission.HOME,
                       Permission.INVENTORY,
                       Permission.SALES,
-                      Permission.ANNOUCEMENT,
+                      Permission.ANNOUNCEMENT,
                       Permission.USERS,
                       Permission.BILLING))
               .company(savedCompany)

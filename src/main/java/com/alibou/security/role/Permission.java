@@ -5,8 +5,7 @@ public enum Permission {
     HOME,
     INVENTORY,
     SALES,
-    ANNOUCEMENT,
+    ANNOUNCEMENT,
     USERS,
     BILLING
-
 }

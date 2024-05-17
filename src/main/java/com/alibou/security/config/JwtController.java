@@ -29,18 +29,19 @@ public class JwtController {
         JwtDto jwtDto = JwtDto.builder()
                 .isValid(false) // corrected spelling
                 .userId(0)
+                .companyId(0)
                 .build();
+
         Optional<Token> jwt = tokenRepository.findByToken(token);
         if(jwt.isPresent()){
             if (!jwt.get().isExpired() && !jwt.get().isRevoked()) {
                 jwtDto.setIsValid(true);
                 jwtDto.setUserId(jwt.get().getUser().getId());
+                jwtDto.setCompanyId(jwt.get().getUser().getCompany().getId());
                 return jwtDto;
             }
         }
         return jwtDto;
-
-
     }
 
 

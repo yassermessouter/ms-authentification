@@ -12,5 +12,6 @@ import lombok.NoArgsConstructor;
 public class JwtDto {
     private Boolean isValid;
     private Integer userId;
+    private Integer companyId;
 
 }
