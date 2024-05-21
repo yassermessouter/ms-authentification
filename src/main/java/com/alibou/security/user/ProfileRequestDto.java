@@ -1,5 +1,6 @@
 package com.alibou.security.user;
 
+import com.alibou.security.company.Wilaya;
 import com.alibou.security.role.Permission;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,8 +13,10 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserInfosDto {
+public class ProfileRequestDto {
     private String fullname;
     private String email;
-    private List<Permission> permissions;
+    private String companyName;
+    private String adress;
+    private List<Wilaya> wilayas;
 }

@@ -1,20 +1,18 @@
-package com.alibou.security.company;
+package com.alibou.security.customer;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
-@Builder
 @Data
-@NoArgsConstructor
+@Builder
 @AllArgsConstructor
+@NoArgsConstructor
 public class CompanyDto {
     private String name;
+    private String email;
     private String address;
-    private List<String> fileUrls;
-    private List<Wilaya> wilayas;
-    private Boolean hasDeliveryDate;
+    private String number;
+    private String description;
 }

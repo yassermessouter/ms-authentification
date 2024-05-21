@@ -8,6 +8,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:3000") // Allow requests from http://localhost:3000
 public class CompanyController {
     private final CompanyService companyService;
 
@@ -23,29 +24,17 @@ public class CompanyController {
     ){
         return companyService.findCompanyByname(name);
     }
-
     @PutMapping("/companie")
     public String updateCompanyDetails(
             @RequestBody CompanyUpdatedDto companyUpdatedDto
     ){
         return companyService.updateCompanyDetails(companyUpdatedDto);
     }
-
-
-    @GetMapping("/company-infos")
-    public CompanyRequestDto getCompanyInfos(
-            HttpServletRequest request
-    ){
-        return companyService.getCompanyInfos(request);
+    @GetMapping("/company-type")
+    public CompanyType getCompanyType(@RequestBody String name){
+        return companyService.getCompanyType(name);
     }
 
-    @PutMapping("/update-company-infos")
-    public String updateCompanyInfos(
-            HttpServletRequest request,
-            @RequestBody CompanyRequestDto companyRequest
-    ){
-        return companyService.update(request,companyRequest);
-    }
 
 
 

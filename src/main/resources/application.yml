@@ -1,4 +1,9 @@
+
 spring:
+  spring:
+    mvc:
+      cors:
+        allowed-origins=http://localhost:3000:
   datasource:
     url: jdbc:postgresql://localhost:5432/jwt_security
     username: postgres

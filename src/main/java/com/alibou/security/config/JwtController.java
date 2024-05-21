@@ -1,25 +1,17 @@
 package com.alibou.security.config;
 
-import com.alibou.security.company.Company;
-import com.alibou.security.delivery.SectorDto;
-import com.alibou.security.delivery.WilayaDto;
 import com.alibou.security.token.Token;
 import com.alibou.security.token.TokenRepository;
-import com.alibou.security.user.User;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
-import jakarta.servlet.http.HttpServletRequest;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:3000") // Allow requests from http://localhost:3000
+
 
 public class JwtController {
     private final TokenRepository tokenRepository;

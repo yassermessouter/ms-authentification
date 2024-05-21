@@ -8,6 +8,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:3000") // Allow requests from http://localhost:3000
+
 public class RoleController {
     private final RoleService roleService;
 

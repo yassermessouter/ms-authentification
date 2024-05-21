@@ -1,6 +1,5 @@
 package com.alibou.security.user;
 
-import com.alibou.security.auth.AuthenticationController;
 import com.alibou.security.auth.AuthenticationService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -11,9 +10,12 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:3000",allowedHeaders = "*") // Allow requests from http://localhost:3000
+
 public class UserController {
     private final AuthenticationService authenticationService;
     private final UserService userService;
+
 
     @PostMapping("/invite-user")
     public User invite(
@@ -36,12 +38,13 @@ public class UserController {
         return userService.editUser(userUpdatedDto);
     }
 
-    @GetMapping("/user-infos")
-    public UserInfosDto getUser(
+    @GetMapping("/profile")
+    public ProfileResponseDto getUser(
              HttpServletRequest request
     ){
         return userService.showUser(request);
     }
+
 
 
 
@@ -53,14 +56,25 @@ public class UserController {
         return userService.changePassword(request,passwordChangedDto);
     }
 
-    @PutMapping("/update-user-infos")
+    @PutMapping("/profile")
     public String update(
             HttpServletRequest request,
-            @RequestBody String fullname
+            @RequestBody ProfileRequestDto profileRequestDto
 
     ){
-        return userService.update(request,fullname);
+        return userService.update(request,profileRequestDto);
     }
+
+    @GetMapping("/user-details")
+    public UserResponseDto get(
+            HttpServletRequest request
+    ){
+        return userService.getUserDetails(request);
+    }
+//    @PostMapping("/user-details")
+//    public UserResponseDto get(@RequestParam(name = "token") String token) {
+//    return userService.getUserDetails(token);
+//    }
 
 
 
