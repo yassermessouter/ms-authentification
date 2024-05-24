@@ -1,7 +1,5 @@
 package com.alibou.security.company;
 
-import com.alibou.security.delivery.Sector;
-import com.alibou.security.delivery.Wilaya;
 import com.alibou.security.role.Role;
 import com.alibou.security.user.StateType;
 import com.alibou.security.user.User;
@@ -27,8 +25,14 @@ public class Company {
     @Column(unique = true)
     private String name;
     private String address;
+    private Boolean hasDeliveryDate;
+    private String number;
+    private String description;
+    private String email;
     @Enumerated(EnumType.STRING)
     private StateType stateType;
+    @Enumerated(EnumType.STRING)
+    private CompanyType companyType;
     @ElementCollection(targetClass = Category.class)
     @Enumerated(EnumType.STRING)
     @CollectionTable(name = "company_categories",joinColumns = @JoinColumn(name = "company_id"))
@@ -43,16 +47,12 @@ public class Company {
 
     @OneToMany(mappedBy = "company")
     @JsonManagedReference
-    private List<Wilaya> wilayaList;
-
-
-    @OneToMany(mappedBy = "company")
-    @JsonManagedReference
-    private List<Sector> sectorList;
-
-    @OneToMany(mappedBy = "company")
-    @JsonManagedReference
     private List<Role> roles;
+
+    @ElementCollection(targetClass = Wilaya.class)
+    @Enumerated(EnumType.STRING)
+    @CollectionTable(name = "company_wilayas",joinColumns = @JoinColumn(name = "company_id"))
+    private List<Wilaya> wilayas;
 
 
 

@@ -1,8 +1,6 @@
 package com.alibou.security.auth;
 
-import com.alibou.security.company.Company;
-import com.alibou.security.company.CompanyDto;
-import com.alibou.security.company.CompanyRepository;
+import com.alibou.security.company.*;
 import com.alibou.security.config.JwtService;
 import com.alibou.security.role.Permission;
 import com.alibou.security.role.Role;
@@ -12,7 +10,6 @@ import com.alibou.security.token.TokenRepository;
 import com.alibou.security.token.TokenType;
 import com.alibou.security.user.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +19,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -41,6 +37,7 @@ public class AuthenticationService {
   private final AuthenticationManager authenticationManager;
   private final CompanyRepository companyRepository;
   private final EmailSenderService emailSenderService;
+  private final FileRepository fileRepository;
 
   public String userRegister(RegisterRequest request) {
     Optional<User> existingUser = userRepository.findByEmail(request.getEmail());
@@ -48,6 +45,7 @@ public class AuthenticationService {
       Company company = Company.builder()
               .name(request.getCompanyName())
               .stateType(StateType.INACTIVE)
+              .companyType(CompanyType.SUPPLIER)
               .build();
       Company savedCompany = companyRepository.save(company);
       Role role = Role.builder()
@@ -78,10 +76,18 @@ public class AuthenticationService {
   }
 
 
-  public String companyRegister(CompanyDto companyDto,List<MultipartFile> files) {
+  public String companyRegister(CompanyDto companyDto) {
     Company savedCompany = companyRepository.findByName(companyDto.getName()).orElseThrow();
     savedCompany.setAddress(companyDto.getAddress());
-//    savedCompany.setFileUrls();
+    savedCompany.setWilayas(companyDto.getWilayas());
+    savedCompany.setHasDeliveryDate(companyDto.getHasDeliveryDate());
+    for (String fileUrl :companyDto.getFileUrls()){
+      FileMetadata fileMetadata=FileMetadata.builder()
+              .fileUrl(fileUrl)
+              .company(savedCompany)
+              .build();
+      fileRepository.save(fileMetadata);
+    }
     companyRepository.save(savedCompany);
     return "Company created successfully";
 
@@ -168,14 +174,14 @@ public class AuthenticationService {
             "\n" +
             "We hope this email finds you well. We wanted to inform you that your account for " +companyName+" Company has" +
             " been successfully activated. Thank you for choosing us as your service provider.\n" +
-            "Please follow the link to complete the setup of your company information: http://localhost:8080/api/v1/auth/setup/"+companyName+
             "\n" +
             "Thank you,\n";
     emailSenderService.sendEmail(email, subject, message);
     return "email sended";
   }
 
-  public String sendEmail(String email) {
+  public String sendEmail(EmailDto emailDto) {
+    String email=emailDto.getEmail();
     User user = userRepository.findByEmail(email)
             .orElseThrow(() -> new NoSuchElementException("User not found for email: " + email));
     Token token=tokenRepository.findValidTokenByUser(user.getId());
@@ -186,7 +192,7 @@ public class AuthenticationService {
     String message = "Hello,\n" +
             "\n" +
             "You've requested to reset your password. Please follow the link to proceed:\n" +
-            "http://localhost:8080/api/v1/auth/reset-password/"+token.getToken() +
+            "http://localhost:3000/confirm-password/"+token.getToken() +
             "\n" +
             "Thank you,\n";
     emailSenderService.sendEmail(email, subject, message);
@@ -230,7 +236,7 @@ public class AuthenticationService {
             "\n" +
             "You are invite by " +companyName+ " Company to register on the Supplier palteform\n" +
             "\n" +
-            "Register here: http://localhost:8080/api/v1/auth/register?email="+email + "\n"+
+            "Register here: http://localhost:3000/signup_employee/"+email + "\n"+
             "\n" +
             "Looking forward to seeing you there!\n" +
             "\n" +
@@ -261,7 +267,6 @@ public class AuthenticationService {
   public Boolean isAdminRegister(){
     Optional<User> user=userRepository.findByEmail("admin@gmail.com");
     return user.isPresent();
-
   }
 
 
@@ -288,4 +293,21 @@ public class AuthenticationService {
     return "Admin register";
 
   }
+
+  public UserInfosDto getUserDetails(String token) {
+      Token jwt = tokenRepository.findByToken(token).orElseThrow(() -> new RuntimeException("Token not found"));
+      if (!jwt.isExpired() && !jwt.isRevoked()) {
+        User user = jwt.getUser();
+        UserInfosDto userInfosDto=UserInfosDto.builder()
+                .email(user.getEmail())
+                .fullName(user.getFullname())
+                .companyName(user.getCompany().getName())
+                .permissions(user.getRole().getPermissions())
+                .build();
+        return userInfosDto;
+      } else {
+        throw new RuntimeException("Token invalide");
+      }
+
+    }
 }

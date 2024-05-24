@@ -3,23 +3,13 @@ package com.alibou.security.auth;
 import com.alibou.security.company.Company;
 import com.alibou.security.company.CompanyDto;
 import com.alibou.security.company.CompanyService;
-import com.alibou.security.company.CompanySetupDto;
-import com.alibou.security.role.Role;
-import com.alibou.security.role.RoleRepository;
-import com.alibou.security.user.User;
-import com.alibou.security.user.UserDto;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -28,6 +18,14 @@ public class AuthenticationController {
 
   private final AuthenticationService authenticationService;
   private final CompanyService companyService;
+
+  @GetMapping("/user-details/{token}")
+  public UserInfosDto getUserDetails(
+          @PathVariable("token") String token
+  ){
+    return authenticationService.getUserDetails(token);
+  }
+
 
   @PostMapping("/register/user-infos")
   public String userRegister(
@@ -38,10 +36,9 @@ public class AuthenticationController {
 
   @PostMapping("/register/company-infos")
   public String companyRegister(
-          @ModelAttribute CompanyDto companyDto,
-          @RequestParam("files") List<MultipartFile> files
+          @RequestBody CompanyDto companyDto
           ){
-    return authenticationService.companyRegister(companyDto, files);
+    return authenticationService.companyRegister(companyDto);
   }
 
 
@@ -60,18 +57,12 @@ public class AuthenticationController {
     authenticationService.refreshToken(request, response);
   }
 
-  @PutMapping("/company/setup")
-  public Company setupCompany(
-          @RequestBody CompanySetupDto companySetupDto
-  ){
-    return companyService.setupCompanyDetails(companySetupDto);
-  }
 
   @PostMapping("/send-email")
   public String sendEmail(
-          @RequestBody String email
+          @RequestBody EmailDto emailDto
   ){
-     return authenticationService.sendEmail(email);
+     return authenticationService.sendEmail(emailDto);
   }
 
   @PostMapping("/reset-password")
@@ -81,9 +72,9 @@ public class AuthenticationController {
     return authenticationService.resetPassword(passwordDto);
   }
 
-  @PostMapping("/is-password-forgetten")
+  @PostMapping("/is-password-forgetten/{token}")
   public Boolean isPasswordForgetten(
-          @RequestBody String token){
+          @PathVariable("token") String token){
     return authenticationService.isPasswordForgetten(token);
   }
 
@@ -94,6 +85,7 @@ public class AuthenticationController {
   ){
       return ResponseEntity.ok(authenticationService.authenticateMembre(request));
   }
+
 
 
 

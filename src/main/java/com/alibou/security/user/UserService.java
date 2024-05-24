@@ -7,10 +7,7 @@ import com.alibou.security.role.RoleRepository;
 import com.alibou.security.token.Token;
 import com.alibou.security.token.TokenRepository;
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -55,7 +52,7 @@ public class UserService {
         return "User updated";
 
     }
-    public UserInfosDto showUser(HttpServletRequest request) {
+    public ProfileResponseDto showUser(HttpServletRequest request) {
         String authorizationHeader = request.getHeader("Authorization");
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             String token = authorizationHeader.substring(7); // Remove "Bearer " prefix
@@ -63,10 +60,14 @@ public class UserService {
             if (!jwt.isExpired() && !jwt.isRevoked()) {
                 User user = jwt.getUser();
                 Role role = user.getRole();
-                return UserInfosDto.builder()
+                Company company=user.getCompany();
+                return ProfileResponseDto.builder()
                         .email(user.getEmail())
                         .fullname(user.getFullname())
                         .permissions(role.getPermissions())
+                        .companyName(company.getName())
+                        .adress(company.getAddress())
+                        .wilayas(company.getWilayas())
                         .build();
             } else {
                 throw new RuntimeException("Token invalide");
@@ -98,7 +99,7 @@ public class UserService {
     }
 
 
-    public String update(HttpServletRequest request, String fullname) {
+    public String update(HttpServletRequest request, ProfileRequestDto profileRequestDto) {
         String authorizationHeader = request.getHeader("Authorization");
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             String token = authorizationHeader.substring(7); // Remove "Bearer " prefix
@@ -106,7 +107,13 @@ public class UserService {
 
             if (!jwt.isExpired() && !jwt.isRevoked()) {
                 User user = jwt.getUser();
-                user.setFullname(fullname);
+                Company company=user.getCompany();
+                company.setName(profileRequestDto.getCompanyName());
+                company.setAddress(profileRequestDto.getAdress());
+                company.setWilayas(profileRequestDto.getWilayas());
+                companyRepository.save(company);
+                user.setFullname(profileRequestDto.getFullname());
+                user.setEmail(profileRequestDto.getEmail());
                 userRepository.save(user);
                 return "OK";
 
@@ -118,4 +125,60 @@ public class UserService {
         }
 
     }
+
+    public UserResponseDto getUserDetails(HttpServletRequest request) {
+        String authorizationHeader = request.getHeader("Authorization");
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            String token = authorizationHeader.substring(7); // Remove "Bearer " prefix
+            Token jwt = tokenRepository.findByToken(token).orElseThrow(() -> new RuntimeException("Token not found"));
+            if (!jwt.isExpired() && !jwt.isRevoked()) {
+                User user = jwt.getUser();
+                Role role = user.getRole();
+                Company company=user.getCompany();
+                return UserResponseDto.builder()
+                        .userId(user.getId())
+                        .name(user.getFullname())
+                        .email(user.getEmail())
+                        .permissions(role.getPermissions())
+                        .companyId(company.getId())
+                        .companyName(company.getName())
+                        .address(company.getAddress())
+                        .hasDeliveryDate(company.getHasDeliveryDate())
+                        .number(company.getNumber())
+                        .description(company.getNumber())
+                        .categories(company.getCategories())
+                        .companyEmail(company.getEmail())
+                        .wilayas(company.getWilayas())
+                        .build();
+            } else {
+                throw new RuntimeException("Token invalide");
+            }
+        } else {
+            throw new RuntimeException("Authorization header missing or invalid");
+        }
+    }
+//public UserResponseDto getUserDetails(String token) {
+//        Token jwt = tokenRepository.findByToken(token).orElseThrow(() -> new RuntimeException("Token not found"));
+//        if (!jwt.isExpired() && !jwt.isRevoked()) {
+//            User user = jwt.getUser();
+//            Role role = user.getRole();
+//            Company company=user.getCompany();
+//            return UserResponseDto.builder()
+//                    .userId(user.getId())
+//                    .name(user.getFullname())
+//                    .email(user.getEmail())
+//                    .permissions(role.getPermissions())
+//                    .companyId(company.getId())
+//                    .companyName(company.getName())
+//                    .address(company.getAddress())
+//                    .hasDeliveryDate(company.getHasDeliveryDate())
+//                    .number(company.getNumber())
+//                    .description(company.getNumber())
+//                    .categories(company.getCategories())
+//                    .companyEmail(company.getEmail())
+//                    .wilayas(company.getWilayas())
+//                    .build();
+//        }
+//    return null;
+//}
 }

@@ -23,29 +23,17 @@ public class CompanyController {
     ){
         return companyService.findCompanyByname(name);
     }
-
     @PutMapping("/companie")
     public String updateCompanyDetails(
             @RequestBody CompanyUpdatedDto companyUpdatedDto
     ){
         return companyService.updateCompanyDetails(companyUpdatedDto);
     }
-
-
-    @GetMapping("/company-infos")
-    public CompanyRequestDto getCompanyInfos(
-            HttpServletRequest request
-    ){
-        return companyService.getCompanyInfos(request);
+    @GetMapping("/company-type")
+    public CompanyType getCompanyType(@RequestBody String name){
+        return companyService.getCompanyType(name);
     }
 
-    @PutMapping("/update-company-infos")
-    public String updateCompanyInfos(
-            HttpServletRequest request,
-            @RequestBody CompanyRequestDto companyRequest
-    ){
-        return companyService.update(request,companyRequest);
-    }
 
 
 
