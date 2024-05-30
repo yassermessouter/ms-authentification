@@ -5,6 +5,7 @@ import com.alibou.security.token.Token;
 import com.alibou.security.token.TokenRepository;
 import com.alibou.security.user.StateType;
 import com.alibou.security.user.User;
+import com.alibou.security.user.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,20 +19,20 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CompanyService {
     private final CompanyRepository companyRepository;
-    private final TokenRepository tokenRepository;
     private final AuthenticationService authenticationService;
+    private final UserRepository userRepository;
 
     public List<CompanyResponseDto> findAllCompanies() {
         List<Company> companies = companyRepository.findAll();
         return companies.stream()
                 .filter(company -> !company.getName().equals("Supplier")) // Exclude the company with name "Supplier"
-                .map(company -> new CompanyResponseDto(company.getName(), company.getAddress(), company.getStateType()))
+                .map(company -> new CompanyResponseDto(company.getId(),company.getName(), company.getEmpoloyees().get(0).getEmail(), company.getStateType()))
                 .collect(Collectors.toList());
     }
 
 
-    public CompanyDetailsDto findCompanyByname(String name) {
-        Company company= companyRepository.findByName(name).orElseThrow();
+    public CompanyDetailsDto findCompanyByname(Integer id) {
+        Company company= companyRepository.findById(id).orElseThrow();
         List<String> fileUrls=new ArrayList<>();
         for (FileMetadata fileMetadata: company.getFileUrls()){
             fileUrls.add(fileMetadata.getFileUrl());
@@ -39,6 +40,8 @@ public class CompanyService {
 
         return CompanyDetailsDto.builder()
                 .name(company.getName())
+                .number(company.getNumber())
+                .email(company.getEmpoloyees().get(0).getEmail())
                 .address(company.getAddress())
                 .fileUrls(fileUrls)
                 .stateType(company.getStateType())

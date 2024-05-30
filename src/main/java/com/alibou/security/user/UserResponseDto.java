@@ -25,14 +25,14 @@ public class UserResponseDto {
     private List<Permission> permissions;
     //
     private Integer companyId;
-    private String companyName;
-    private String address;
-    private Boolean hasDeliveryDate;
-    private String number;
-    private String description;
-    private String companyEmail;
+    private String companyName; //
+    private String address; //
+    private Boolean hasDeliveryDate;//
+    private String number;//
+    private String description;//
+    private String companyEmail;//
     private List<Category> categories;
-    private List<Wilaya> wilayas;
+    private List<Wilaya> wilayas;//
 
 
 

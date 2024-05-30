@@ -8,6 +8,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:3000") // Allow requests from http://localhost:3000
+
 public class RoleController {
     private final RoleService roleService;
 
@@ -18,11 +20,11 @@ public class RoleController {
         return roleService.addRole(roleRequestDto);
     }
 
-    @GetMapping("/roles/{company-name}")
+    @GetMapping("/roles/{company-id}")
     public List<RoleResponceDto> findAllRoles(
-            @PathVariable("company-name") String companyName
+            @PathVariable("company-id") String companyId
     ){
-        return roleService.findAll(companyName);
+        return roleService.findAll(Integer.parseInt(companyId));
 
     }
 

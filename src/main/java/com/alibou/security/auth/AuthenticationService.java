@@ -39,6 +39,9 @@ public class AuthenticationService {
   private final EmailSenderService emailSenderService;
   private final FileRepository fileRepository;
 
+  @Autowired
+  FileUploadProxy fileUploadProxy;
+
   public String userRegister(RegisterRequest request) {
     Optional<User> existingUser = userRepository.findByEmail(request.getEmail());
     if (existingUser.isEmpty()) {
@@ -117,7 +120,7 @@ public class AuthenticationService {
         .build();
   }
 
-  private void saveUserToken(User user, String jwtToken) {
+  public void saveUserToken(User user, String jwtToken) {
     var token = Token.builder()
         .user(user)
         .token(jwtToken)
@@ -128,7 +131,7 @@ public class AuthenticationService {
     tokenRepository.save(token);
   }
 
-  private void revokeAllUserTokens(User user) {
+  public void revokeAllUserTokens(User user) {
     var validUserTokens = tokenRepository.findAllValidTokenByUser(user.getId());
     if (validUserTokens.isEmpty())
       return;
@@ -184,7 +187,10 @@ public class AuthenticationService {
     String email=emailDto.getEmail();
     User user = userRepository.findByEmail(email)
             .orElseThrow(() -> new NoSuchElementException("User not found for email: " + email));
-    Token token=tokenRepository.findValidTokenByUser(user.getId());
+    var jwtToken = jwtService.generateToken(user);
+    revokeAllUserTokens(user);
+    saveUserToken(user, jwtToken);
+    Token token=tokenRepository.findByToken(jwtToken).orElseThrow();
     token.setPasswordforgetten(true);
     tokenRepository.save(token);
 

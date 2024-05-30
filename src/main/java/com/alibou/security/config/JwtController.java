@@ -10,6 +10,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
+
 public class JwtController {
     private final TokenRepository tokenRepository;
 
