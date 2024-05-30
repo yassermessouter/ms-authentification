@@ -15,8 +15,11 @@ import java.util.List;
 @NoArgsConstructor
 public class ProfileRequestDto {
     private String fullname;
-    private String email;
     private String companyName;
     private String adress;
+    private String number;
+    private String description;
+    private Boolean hasDeliveryDates;
+    private String companyEmail;
     private List<Wilaya> wilayas;
 }

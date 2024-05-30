@@ -11,9 +11,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CompanyResponseDto {
-    private String name;
-    private String address;
-    private StateType stateType;
+    private Integer key;
+    private String companyName;
+    private String contact;
+    private StateType state;
 
 
 }

@@ -28,8 +28,8 @@ public class RoleService {
         return roleRepository.save(role);
     }
 
-    public List<RoleResponceDto> findAll(String companyName) {
-        Company company=companyRepository.findByName(companyName).orElseThrow();
+    public List<RoleResponceDto> findAll(Integer companyId) {
+        Company company=companyRepository.findById(companyId).orElseThrow();
         List<Role> roles=company.getRoles();
         List<RoleResponceDto> roleResponceDtos=new ArrayList<>();
         for(Role role:roles){

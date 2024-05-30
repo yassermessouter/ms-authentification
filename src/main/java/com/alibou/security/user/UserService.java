@@ -1,13 +1,16 @@
 package com.alibou.security.user;
 
+import com.alibou.security.auth.AuthenticationService;
 import com.alibou.security.company.Company;
 import com.alibou.security.company.CompanyRepository;
+import com.alibou.security.config.JwtService;
 import com.alibou.security.role.Role;
 import com.alibou.security.role.RoleRepository;
 import com.alibou.security.token.Token;
 import com.alibou.security.token.TokenRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -22,12 +25,14 @@ public class UserService {
     private final RoleRepository roleRepository;
     private final TokenRepository tokenRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
+    private final AuthenticationService authenticationService;
     HttpServletRequest request;
 
 
 
-    public List<UserDetailsDto> showUsers(String companyName) {
-        Company company=companyRepository.findByName(companyName).orElseThrow();
+    public List<UserDetailsDto> showUsers(Integer companyId) {
+        Company company=companyRepository.findById(companyId).orElseThrow();
         List<User> users=userRepository.findAllByCompany(company);
         List<UserDetailsDto> userDetailsDtos=new ArrayList<>();
         Role role;
@@ -45,7 +50,7 @@ public class UserService {
 
     public String editUser(UserUpdatedDto userUpdatedDto) {
         User user=userRepository.findByEmail(userUpdatedDto.getEmail()).orElseThrow();
-        Role role=roleRepository.findByName(userUpdatedDto.getRoleName());
+        Role role=roleRepository.findByNameAndCompanyId(userUpdatedDto.getRoleName(),user.getCompany().getId());
         user.setStateType(userUpdatedDto.getStateType());
         user.setRole(role);
         userRepository.save(user);
@@ -99,30 +104,46 @@ public class UserService {
     }
 
 
-    public String update(HttpServletRequest request, ProfileRequestDto profileRequestDto) {
-        String authorizationHeader = request.getHeader("Authorization");
-        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-            String token = authorizationHeader.substring(7); // Remove "Bearer " prefix
-            Token jwt = tokenRepository.findByToken(token).orElseThrow(() -> new RuntimeException("Token not found"));
+    public String update(Integer id, ProfileRequestDto profileRequestDto) {
 
-            if (!jwt.isExpired() && !jwt.isRevoked()) {
-                User user = jwt.getUser();
-                Company company=user.getCompany();
-                company.setName(profileRequestDto.getCompanyName());
-                company.setAddress(profileRequestDto.getAdress());
-                company.setWilayas(profileRequestDto.getWilayas());
+                User user = userRepository.findById(id).orElseThrow();
+                Company company = user.getCompany();
+
+                // Null check before setting company fields
+                if (profileRequestDto.getCompanyName() != null) {
+                    company.setName(profileRequestDto.getCompanyName());
+                }
+                if (profileRequestDto.getAdress() != null) {
+                    company.setAddress(profileRequestDto.getAdress());
+                }
+                if (profileRequestDto.getWilayas() != null) {
+                    company.setWilayas(profileRequestDto.getWilayas());
+                }
+                if (profileRequestDto.getHasDeliveryDates() != null) {
+                    company.setHasDeliveryDate(profileRequestDto.getHasDeliveryDates());
+                }
+                if (profileRequestDto.getDescription() != null) {
+                    company.setDescription(profileRequestDto.getDescription());
+                }
+                if (profileRequestDto.getCompanyEmail() != null) {
+                    company.setEmail(profileRequestDto.getCompanyEmail());
+                }
+                if (profileRequestDto.getNumber() != null) {
+                    company.setNumber(profileRequestDto.getNumber());
+                }
+
                 companyRepository.save(company);
-                user.setFullname(profileRequestDto.getFullname());
-                user.setEmail(profileRequestDto.getEmail());
+
+                // Null check before setting user fields
+                if (profileRequestDto.getFullname() != null) {
+                    user.setFullname(profileRequestDto.getFullname());
+                }
+
+
                 userRepository.save(user);
                 return "OK";
 
-            } else {
-                throw new RuntimeException("Token invalide");
-            }
-        } else {
-            throw new RuntimeException("Authorization header missing or invalid");
-        }
+
 
     }
 
@@ -145,7 +166,7 @@ public class UserService {
                         .address(company.getAddress())
                         .hasDeliveryDate(company.getHasDeliveryDate())
                         .number(company.getNumber())
-                        .description(company.getNumber())
+                        .description(company.getDescription())
                         .categories(company.getCategories())
                         .companyEmail(company.getEmail())
                         .wilayas(company.getWilayas())
@@ -157,28 +178,17 @@ public class UserService {
             throw new RuntimeException("Authorization header missing or invalid");
         }
     }
-//public UserResponseDto getUserDetails(String token) {
-//        Token jwt = tokenRepository.findByToken(token).orElseThrow(() -> new RuntimeException("Token not found"));
-//        if (!jwt.isExpired() && !jwt.isRevoked()) {
-//            User user = jwt.getUser();
-//            Role role = user.getRole();
-//            Company company=user.getCompany();
-//            return UserResponseDto.builder()
-//                    .userId(user.getId())
-//                    .name(user.getFullname())
-//                    .email(user.getEmail())
-//                    .permissions(role.getPermissions())
-//                    .companyId(company.getId())
-//                    .companyName(company.getName())
-//                    .address(company.getAddress())
-//                    .hasDeliveryDate(company.getHasDeliveryDate())
-//                    .number(company.getNumber())
-//                    .description(company.getNumber())
-//                    .categories(company.getCategories())
-//                    .companyEmail(company.getEmail())
-//                    .wilayas(company.getWilayas())
-//                    .build();
-//        }
-//    return null;
-//}
+
+    public void logout(String token) {
+            Token jwt = tokenRepository.findByToken(token).orElseThrow(() -> new RuntimeException("Token not found"));
+            if (!jwt.isExpired() && !jwt.isRevoked()) {
+                jwt.setRevoked(true);
+                jwt.setExpired(true);
+                tokenRepository.save(jwt);
+            } else {
+                throw new RuntimeException("Token invalide");
+            }
+
+    }
+
 }

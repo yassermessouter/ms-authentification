@@ -16,6 +16,8 @@ import java.util.List;
 @Builder
 public class CompanyDetailsDto {
     private String name;
+    private String email;
+    private String number;
     private String address;
     private List<String> fileUrls;
     @Enumerated(EnumType.STRING)

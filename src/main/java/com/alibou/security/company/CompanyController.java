@@ -18,13 +18,13 @@ public class CompanyController {
     }
 
 
-    @GetMapping("/companies/{company-name}")
+    @GetMapping("/companies/{company-id}")
     public CompanyDetailsDto findCompanyByName(
-            @PathVariable("company-name") String name
+            @PathVariable("company-id") String id
     ){
-        return companyService.findCompanyByname(name);
+        return companyService.findCompanyByname(Integer.parseInt(id));
     }
-    @PutMapping("/companie")
+    @PutMapping("/companies")
     public String updateCompanyDetails(
             @RequestBody CompanyUpdatedDto companyUpdatedDto
     ){

@@ -20,11 +20,11 @@ public class RoleController {
         return roleService.addRole(roleRequestDto);
     }
 
-    @GetMapping("/roles/{company-name}")
+    @GetMapping("/roles/{company-id}")
     public List<RoleResponceDto> findAllRoles(
-            @PathVariable("company-name") String companyName
+            @PathVariable("company-id") String companyId
     ){
-        return roleService.findAll(companyName);
+        return roleService.findAll(Integer.parseInt(companyId));
 
     }
 

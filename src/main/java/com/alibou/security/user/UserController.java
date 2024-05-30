@@ -24,11 +24,11 @@ public class UserController {
         return authenticationService.invite(userDto);
     }
 
-    @GetMapping("/users/{company-name}")
+    @GetMapping("/users/{company-id}")
     public List<UserDetailsDto> showUser(
-            @PathVariable("company-name") String companyName
+            @PathVariable("company-id") String companyId
     ){
-        return userService.showUsers(companyName);
+        return userService.showUsers(Integer.parseInt(companyId));
     }
 
     @PatchMapping("/users")
@@ -46,8 +46,6 @@ public class UserController {
     }
 
 
-
-
     @PutMapping("/change-password")
     public String changePassword(
             HttpServletRequest request,
@@ -56,13 +54,13 @@ public class UserController {
         return userService.changePassword(request,passwordChangedDto);
     }
 
-    @PutMapping("/profile")
+    @PutMapping("/profile/{id}")
     public String update(
-            HttpServletRequest request,
+            @PathVariable("id") String id,
             @RequestBody ProfileRequestDto profileRequestDto
 
     ){
-        return userService.update(request,profileRequestDto);
+        return userService.update(Integer.parseInt(id),profileRequestDto);
     }
 
     @GetMapping("/user-details")
@@ -71,11 +69,10 @@ public class UserController {
     ){
         return userService.getUserDetails(request);
     }
-//    @PostMapping("/user-details")
-//    public UserResponseDto get(@RequestParam(name = "token") String token) {
-//    return userService.getUserDetails(token);
-//    }
-
+    @PostMapping("/logout/{token}")
+    public void logout(@PathVariable("token") String token){
+        userService.logout(token);
+    }
 
 
 
