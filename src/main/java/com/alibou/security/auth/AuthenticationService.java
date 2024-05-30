@@ -39,9 +39,6 @@ public class AuthenticationService {
   private final EmailSenderService emailSenderService;
   private final FileRepository fileRepository;
 
-  @Autowired
-  FileUploadProxy fileUploadProxy;
-
   public String userRegister(RegisterRequest request) {
     Optional<User> existingUser = userRepository.findByEmail(request.getEmail());
     if (existingUser.isEmpty()) {
