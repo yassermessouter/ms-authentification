@@ -14,6 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 public class CustomerResponseDto {
     private Integer id;
+    private String token;
     private String companyName;
     private String fullName;
     private String email;
