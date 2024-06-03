@@ -1,7 +1,9 @@
 package com.alibou.security.customer;
 
 import com.alibou.security.auth.AuthenticationRequest;
+import com.alibou.security.auth.AuthenticationService;
 import com.alibou.security.company.*;
+import com.alibou.security.config.JwtService;
 import com.alibou.security.user.StateType;
 import com.alibou.security.user.User;
 import com.alibou.security.user.UserRepository;
@@ -17,6 +19,8 @@ public class CustomerService {
     private final UserRepository userRepository;
     private final CompanyRepository companyRepository;
     private final FileRepository fileRepository;
+    private final JwtService jwtService; ///hadi
+    private final AuthenticationService authenticationService; //hadi
 
     public String register(CustomerRequestDto customerRequestDto) {
         List<Wilaya> wilayas=new ArrayList<>();
@@ -46,16 +50,20 @@ public class CustomerService {
                 .build();
         userRepository.save(user);
         return "customer regiser successfuly";
-
     }
 
     public CustomerResponseDto authenticate(AuthenticationRequest authenticationRequest) {
         User user=userRepository.findByEmail(authenticationRequest.getEmail()).orElseThrow();
         Company company=user.getCompany();
         if (user.getCompany().getStateType()==StateType.ACTIVE){
-            //generate token
+            //verify the firebase token
+            //if the token is true excute the code bellow
+            var jwtToken = jwtService.generateToken(user);
+            authenticationService.revokeAllUserTokens(user);
+            authenticationService.saveUserToken(user, jwtToken);
             CustomerResponseDto customer= CustomerResponseDto.builder()
                     .id(company.getId())
+                    .token(jwtToken)
                     .companyName(company.getName())
                     .fullName(user.getFullname())
                     .wiliya(company.getWilayas().get(0))
