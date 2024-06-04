@@ -22,13 +22,14 @@ public class UserController {
         return authenticationService.invite(userDto);
     }
 
-    @GetMapping("/users/{company-id}")
+      @GetMapping("/users/{company-id}")
     public List<UserDetailsDto> showUser(
+            HttpServletRequest request,
             @PathVariable("company-id") String companyId
     ){
-        return userService.showUsers(Integer.parseInt(companyId));
+        return userService.showUsers(Integer.parseInt(companyId),request);
     }
-
+    
     @PatchMapping("/users")
     public String editUser(
             @RequestBody UserUpdatedDto userUpdatedDto
