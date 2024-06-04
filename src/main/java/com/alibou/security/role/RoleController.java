@@ -32,6 +32,12 @@ public class RoleController {
         return roleService.updateRole(roleUpdated);
     }
 
+     @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<?> handleException(RuntimeException e) {
+        String errorMessage = e.getMessage();
+        return new ResponseEntity<>(errorMessage, HttpStatus.BAD_REQUEST);
+    }
+
 
 
 }
