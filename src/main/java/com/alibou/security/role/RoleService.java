@@ -20,6 +20,10 @@ public class RoleService {
 
     public Role addRole( RoleRequestDto roleRequestDto){
         Company company= companyRepository.findByName(roleRequestDto.getCompanyName()).orElseThrow();
+        Role roleExiste=roleRepository.findByNameAndCompanyId(roleRequestDto.getRoleName(),company.getId());
+        if(roleExiste!=null){
+            throw new RuntimeException("Role name already existe");
+        }
         Role role= Role.builder()
                 .name(roleRequestDto.getRoleName())
                 .company(company)

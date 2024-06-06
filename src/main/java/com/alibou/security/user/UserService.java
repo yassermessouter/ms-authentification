@@ -3,6 +3,7 @@ package com.alibou.security.user;
 import com.alibou.security.auth.AuthenticationService;
 import com.alibou.security.company.Company;
 import com.alibou.security.company.CompanyRepository;
+import com.alibou.security.company.CompanyResponseDto;
 import com.alibou.security.config.JwtService;
 import com.alibou.security.role.Role;
 import com.alibou.security.role.RoleRepository;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -31,21 +33,35 @@ public class UserService {
 
 
 
-    public List<UserDetailsDto> showUsers(Integer companyId) {
-        Company company=companyRepository.findById(companyId).orElseThrow();
-        List<User> users=userRepository.findAllByCompany(company);
-        List<UserDetailsDto> userDetailsDtos=new ArrayList<>();
-        Role role;
-        for (User user:users){
-            role=user.getRole();
-            userDetailsDtos.add(UserDetailsDto.builder()
-                            .fullname(user.getFullname())
-                            .roleName(role.getName())
-                            .email(user.getEmail())
-                            .stateType(user.getStateType())
-                    .build());
+    public List<UserDetailsDto> showUsers(Integer companyId ,HttpServletRequest request) {
+        String authorizationHeader = request.getHeader("Authorization");
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            String token = authorizationHeader.substring(7); // Remove "Bearer " prefix
+            Token jwt = tokenRepository.findByToken(token).orElseThrow(() -> new RuntimeException("Token not found"));
+            if (!jwt.isExpired() && !jwt.isRevoked()) {
+                User tokenUser = jwt.getUser();
+                Company company=companyRepository.findById(companyId).orElseThrow();
+                List<User> users=userRepository.findAllByCompany(company);
+                List<UserDetailsDto> userDetailsDtos=new ArrayList<>();
+                 Role role;
+                 for (User user:users){
+                     if(tokenUser.getEmail()!=user.getEmail()) {
+                         role=user.getRole();
+                         userDetailsDtos.add(UserDetailsDto.builder()
+                                 .fullname(user.getFullname())
+                                 .roleName(role.getName())
+                                 .email(user.getEmail())
+                                 .stateType(user.getStateType())
+                                 .build());
+                     }
+                 }
+                 return userDetailsDtos;
+            } else {
+                throw new RuntimeException("Token invalide");
+            }
+        } else {
+            throw new RuntimeException("Authorization header missing or invalid");
         }
-        return userDetailsDtos;
     }
 
     public String editUser(UserUpdatedDto userUpdatedDto) {
