@@ -16,7 +16,7 @@ public class CustomerController {
     private final CustomerService customerService;
 
     @PostMapping("/client/regiter")
-    public String register(@RequestBody CustomerRequestDto customerRequestDto) {
+    public Object register(@RequestBody CustomerRequestDto customerRequestDto) {
         return customerService.register(customerRequestDto);
     }
 

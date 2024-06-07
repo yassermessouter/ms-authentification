@@ -29,34 +29,42 @@ public class CustomerService {
     private final JwtService jwtService; ///hadi
     private final AuthenticationService authenticationService; //hadi
 
-    public String register(CustomerRequestDto customerRequestDto) {
-        List<Wilaya> wilayas=new ArrayList<>();
-        wilayas.add(customerRequestDto.getWiliya());
-        Company company= Company.builder()
-                .name(customerRequestDto.getCompanyName())
-                .email(customerRequestDto.getCompanyEmail())
-                .stateType(StateType.INACTIVE)
-                .companyType(CompanyType.CUSTOMER)
-                .address(customerRequestDto.getAddress())
-                .wilayas(wilayas)
-                .number(customerRequestDto.getNumber())
-                .build();
-        Company company1=companyRepository.save(company);
-        for (String fileUrl :customerRequestDto.getFileUrls()){
-            FileMetadata fileMetadata=FileMetadata.builder()
-                    .fileUrl(fileUrl)
+    public Object register(CustomerRequestDto customerRequestDto) {
+        try {
+            List<Wilaya> wilayas = new ArrayList<>();
+            wilayas.add(customerRequestDto.getWiliya());
+            Company company = Company.builder()
+                    .name(customerRequestDto.getCompanyName())
+                    .email(customerRequestDto.getCompanyEmail())
+                    .stateType(StateType.INACTIVE)
+                    .companyType(CompanyType.CUSTOMER)
+                    .address(customerRequestDto.getAddress())
+                    .wilayas(wilayas)
+                    .number(customerRequestDto.getNumber())
+                    .build();
+            Company company1 = companyRepository.save(company);
+            for (String fileUrl : customerRequestDto.getFileUrls()) {
+                FileMetadata fileMetadata = FileMetadata.builder()
+                        .fileUrl(fileUrl)
+                        .company(company1)
+                        .build();
+                fileRepository.save(fileMetadata);
+            }
+            User user = User.builder()
+                    .email(customerRequestDto.getEmail())
+                    .password(customerRequestDto.getPassword())
+                    .fullname(customerRequestDto.getFullName())
                     .company(company1)
                     .build();
-            fileRepository.save(fileMetadata);
+            userRepository.save(user);
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Customer registered successfully");
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(e.getMessage());
+
         }
-        User user= User.builder()
-                .email(customerRequestDto.getEmail())
-                .password(customerRequestDto.getPassword())
-                .fullname(customerRequestDto.getFullName())
-                .company(company1)
-                .build();
-        userRepository.save(user);
-        return "customer regiser successfuly";
     }
 
     public Object authenticate(AuthenticationTokenRequest authenticationTokenRequest) {
@@ -98,20 +106,21 @@ public class CustomerService {
     }
 
     public List<String> getSuppliers(Integer id) {
-        Company customer=companyRepository.findById(id).orElseThrow();
-        List<Company> companies=companyRepository.findByCompanyType(CompanyType.SUPPLIER);
-        List<String> resultCompanies=new ArrayList<>();
-        for (Company company:companies){
+        Company customer = companyRepository.findById(id).orElseThrow();
+        List<Company> companies = companyRepository.findByCompanyType(CompanyType.SUPPLIER);
+        List<String> resultCompanies = new ArrayList<>();
+        for (Company company : companies) {
             if (company.getWilayas().contains(customer.getWilayas().get(0))
-                    && isCategoryContains(company,customer.getCategories())){
+                    && isCategoryContains(company, customer.getCategories())) {
                 resultCompanies.add(company.getName());
             }
         }
         return resultCompanies;
     }
-    public Boolean isCategoryContains(Company company,List<Category> categories){
-        for (Category category:categories){
-            if(company.getCategories().contains(category)){
+
+    public Boolean isCategoryContains(Company company, List<Category> categories) {
+        for (Category category : categories) {
+            if (company.getCategories().contains(category)) {
                 return true;
             }
         }
@@ -120,8 +129,8 @@ public class CustomerService {
 
 
     public CompanyDto getSupplierProfile(Integer id) {
-        Company company=companyRepository.findById(id).orElseThrow();
-        CompanyDto companyDto= CompanyDto.builder()
+        Company company = companyRepository.findById(id).orElseThrow();
+        CompanyDto companyDto = CompanyDto.builder()
                 .description(company.getDescription())
                 .address(company.getAddress())
                 .number(company.getNumber())
@@ -131,12 +140,12 @@ public class CustomerService {
         return companyDto;
     }
 
-    public String updateProfile(Integer id,ProfileRequestDto profileRequestDto) {
-        List<Wilaya> wilayas=new ArrayList<>();
+    public String updateProfile(Integer id, ProfileRequestDto profileRequestDto) {
+        List<Wilaya> wilayas = new ArrayList<>();
         wilayas.add(profileRequestDto.getWiliya());
-        Company company=companyRepository.findById(id).orElseThrow();
-        List<User> users=userRepository.findAllByCompany(company);
-        User user=users.get(0);
+        Company company = companyRepository.findById(id).orElseThrow();
+        List<User> users = userRepository.findAllByCompany(company);
+        User user = users.get(0);
         company.setAddress(profileRequestDto.getAddress());
         company.setNumber(profileRequestDto.getNumber());
         company.setWilayas(wilayas);
