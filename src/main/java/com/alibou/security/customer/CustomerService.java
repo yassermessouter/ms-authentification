@@ -2,16 +2,23 @@ package com.alibou.security.customer;
 
 import com.alibou.security.auth.AuthenticationRequest;
 import com.alibou.security.auth.AuthenticationService;
+import com.alibou.security.auth.AuthenticationTokenRequest;
 import com.alibou.security.company.*;
 import com.alibou.security.config.JwtService;
 import com.alibou.security.user.StateType;
 import com.alibou.security.user.User;
 import com.alibou.security.user.UserRepository;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthException;
+import com.google.firebase.auth.FirebaseToken;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -52,29 +59,42 @@ public class CustomerService {
         return "customer regiser successfuly";
     }
 
-    public CustomerResponseDto authenticate(AuthenticationRequest authenticationRequest) {
-        User user=userRepository.findByEmail(authenticationRequest.getEmail()).orElseThrow();
-        Company company=user.getCompany();
-        if (user.getCompany().getStateType()==StateType.ACTIVE){
-            //verify the firebase token
-            //if the token is true excute the code bellow
-            var jwtToken = jwtService.generateToken(user);
-            authenticationService.revokeAllUserTokens(user);
-            authenticationService.saveUserToken(user, jwtToken);
-            CustomerResponseDto customer= CustomerResponseDto.builder()
-                    .id(company.getId())
-                    .token(jwtToken)
-                    .companyName(company.getName())
-                    .fullName(user.getFullname())
-                    .wiliya(company.getWilayas().get(0))
-                    .address(company.getAddress())
-                    .number(company.getNumber())
-                    .email(user.getEmail())
-                    .build();
-            return customer;
-        }else {
-            throw new RuntimeException("Account inactive");
+    public Object authenticate(AuthenticationTokenRequest authenticationTokenRequest) {
+
+        final FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+
+        String token = authenticationTokenRequest.getToken();
+        System.out.println(token);
+        if (token == null) {
+            ResponseEntity.status(404).body("Token is Missing");
         }
+
+        try {
+            //verify token
+            FirebaseToken decodedToken = firebaseAuth.verifyIdToken(token);
+            String email = decodedToken.getEmail();
+            System.out.println(email);
+            //get data from db
+            User user = userRepository.findByEmail(email).orElseThrow();
+            Company company = user.getCompany();
+            if (user.getCompany().getStateType() == StateType.ACTIVE) {
+                var jwtToken = jwtService.generateToken(user);
+                authenticationService.revokeAllUserTokens(user);
+                authenticationService.saveUserToken(user, jwtToken);
+                CustomerResponseDto customer = CustomerResponseDto.builder().id(company.getId()).token(jwtToken).companyName(company.getName()).fullName(user.getFullname()).wiliya(company.getWilayas().get(0)).address(company.getAddress()).number(company.getNumber()).email(user.getEmail()).build();
+                return customer;
+            } else {
+                Map<String, String> errorResponse = new HashMap<>();
+                errorResponse.put("error", "Account inactive");
+                return ResponseEntity.status(401).body(errorResponse);
+            }
+        } catch (FirebaseAuthException e) {
+            // Handle exception and return response with 498 status code
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Invalid token: " + e.getMessage());
+            return ResponseEntity.status(498).body(errorResponse);
+        }
+
     }
 
     public List<String> getSuppliers(Integer id) {
