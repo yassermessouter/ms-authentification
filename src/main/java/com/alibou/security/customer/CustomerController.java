@@ -15,7 +15,7 @@ import java.util.List;
 public class CustomerController {
     private final CustomerService customerService;
 
-    @PostMapping("/client/regiter")
+    @PostMapping("/client/register")
     public Object register(@RequestBody CustomerRequestDto customerRequestDto) {
         return customerService.register(customerRequestDto);
     }

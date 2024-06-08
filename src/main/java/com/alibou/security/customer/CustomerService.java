@@ -90,7 +90,7 @@ public class CustomerService {
                 var jwtToken = jwtService.generateToken(user);
                 authenticationService.revokeAllUserTokens(user);
                 authenticationService.saveUserToken(user, jwtToken);
-                CustomerResponseDto customer = CustomerResponseDto.builder().id(company.getId()).imageUrl(user.getImageUrl()).token(jwtToken).companyName(company.getName()).fullName(user.getFullname()).wiliya(company.getWilayas().get(0)).address(company.getAddress()).number(company.getNumber()).email(user.getEmail()).build();
+                CustomerResponseDto customer = CustomerResponseDto.builder().id(company.getId()).imageUrl(user.getImageUrl()).token(jwtToken).companyName(company.getName()).fullName(user.getFullname()).wiliya(company.getWilayas().get(0)).address(company.getAddress()).number(company.getNumber()).email(user.getEmail()).favoritesProducts(company.getFavorites()).build();
                 return customer;
             } else {
                 Map<String, String> errorResponse = new HashMap<>();
@@ -166,12 +166,12 @@ public class CustomerService {
     }
 
     public String getFavorites(Integer id) {
-        Company company=companyRepository.findById(id).orElseThrow();
+        Company company = companyRepository.findById(id).orElseThrow();
         return company.getFavorites();
     }
 
     public String addFavorites(Integer id, String favorites) {
-        Company company=companyRepository.findById(id).orElseThrow();
+        Company company = companyRepository.findById(id).orElseThrow();
         company.setFavorites(favorites);
         companyRepository.save(company);
         return "user favorites updated";

@@ -22,4 +22,5 @@ public class CustomerResponseDto {
     private Wilaya wiliya;
     private String address;
     private String imageUrl;
+    private String favoritesProducts;
 }
