@@ -68,4 +68,16 @@ public class CompanyService {
         Company company=companyRepository.findByName(name).orElseThrow();
         return company.getCompanyType();
     }
+
+    public String getFavorites(Integer id) {
+        Company company=companyRepository.findById(id).orElseThrow();
+        return company.getFavorites();
+    }
+
+    public String addFavorites(Integer id, String favorites) {
+        Company company=companyRepository.findById(id).orElseThrow();
+        company.setFavorites(favorites);
+        companyRepository.save(company);
+        return "user favorites updated";
+    }
 }
