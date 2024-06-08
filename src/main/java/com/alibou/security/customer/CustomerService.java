@@ -54,6 +54,7 @@ public class CustomerService {
                     .email(customerRequestDto.getEmail())
                     .password(customerRequestDto.getPassword())
                     .fullname(customerRequestDto.getFullName())
+                    .imageUrl(customerRequestDto.getImageUrl())
                     .company(company1)
                     .build();
             userRepository.save(user);
