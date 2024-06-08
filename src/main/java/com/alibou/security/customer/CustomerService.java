@@ -90,7 +90,7 @@ public class CustomerService {
                 var jwtToken = jwtService.generateToken(user);
                 authenticationService.revokeAllUserTokens(user);
                 authenticationService.saveUserToken(user, jwtToken);
-                CustomerResponseDto customer = CustomerResponseDto.builder().id(company.getId()).token(jwtToken).companyName(company.getName()).fullName(user.getFullname()).wiliya(company.getWilayas().get(0)).address(company.getAddress()).number(company.getNumber()).email(user.getEmail()).build();
+                CustomerResponseDto customer = CustomerResponseDto.builder().id(company.getId()).imageUrl(user.getImageUrl()).token(jwtToken).companyName(company.getName()).fullName(user.getFullname()).wiliya(company.getWilayas().get(0)).address(company.getAddress()).number(company.getNumber()).email(user.getEmail()).build();
                 return customer;
             } else {
                 Map<String, String> errorResponse = new HashMap<>();
