@@ -22,5 +22,5 @@ public class CustomerRequestDto {
     private Wilaya wiliya;
     private String address;
     private String companyEmail;
-
+    private String imageUrl;
 }
