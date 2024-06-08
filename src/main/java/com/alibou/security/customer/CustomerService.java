@@ -105,17 +105,25 @@ public class CustomerService {
 
     }
 
-    public List<String> getSuppliers(Integer id) {
-        Company customer = companyRepository.findById(id).orElseThrow();
-        List<Company> companies = companyRepository.findByCompanyType(CompanyType.SUPPLIER);
-        List<String> resultCompanies = new ArrayList<>();
-        for (Company company : companies) {
-            if (company.getWilayas().contains(customer.getWilayas().get(0))
-                    && isCategoryContains(company, customer.getCategories())) {
-                resultCompanies.add(company.getName());
+    public Object getSuppliers(Integer id) {
+        try {
+            Company customer = companyRepository.findById(id).orElseThrow();
+            List<Company> companies = companyRepository.findByCompanyType(CompanyType.SUPPLIER);
+            List<String> resultCompanies = new ArrayList<>();
+            for (Company company : companies) {
+                if (company.getWilayas().contains(customer.getWilayas().get(0))
+                        && isCategoryContains(company, customer.getCategories())) {
+                    resultCompanies.add(company.getName());
+                }
             }
+
+            return ResponseEntity.ok(resultCompanies);
+
+        } catch (Exception e) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", e.getMessage());
+            return ResponseEntity.status(500).body(errorResponse);
         }
-        return resultCompanies;
     }
 
     public Boolean isCategoryContains(Company company, List<Category> categories) {

@@ -26,7 +26,7 @@ public class CustomerController {
     }
 
     @GetMapping("/suppliers/{customer-id}")
-    public List<String> getSuppliers(@PathVariable("customer-id") String id) {
+    public Object getSuppliers(@PathVariable("customer-id") String id) {
         return customerService.getSuppliers(Integer.parseInt(id));
     }
 
