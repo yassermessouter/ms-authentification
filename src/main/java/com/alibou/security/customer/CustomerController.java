@@ -42,6 +42,20 @@ public class CustomerController {
             @RequestBody ProfileRequestDto profileRequestDto) {
         return customerService.updateProfile(Integer.parseInt(name), profileRequestDto);
     }
+    @GetMapping("/client/favorites/{company-id}")
+    public String getFavorites(
+            @PathVariable("company-id") Integer id
+    ){
+        return customerService.getFavorites(id);
+    }
+
+    @PostMapping("/client/favorites/{company-id}")
+    public String addFavorites(
+            @PathVariable("company-id") Integer id,
+            @RequestBody String favorites
+    ){
+        return customerService.addFavorites(id,favorites);
+    }
 
 
 }
