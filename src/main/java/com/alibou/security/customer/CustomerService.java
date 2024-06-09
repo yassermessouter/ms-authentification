@@ -110,12 +110,14 @@ public class CustomerService {
         try {
             Company customer = companyRepository.findById(id).orElseThrow();
             List<Company> companies = companyRepository.findByCompanyType(CompanyType.SUPPLIER);
-            List<String> resultCompanies = new ArrayList<>();
+            List<SupplierResponseDto> resultCompanies = new ArrayList<>();
             for (Company company : companies) {
-                if (company.getWilayas().contains(customer.getWilayas().get(0))
-                        && isCategoryContains(company, customer.getCategories())) {
-                    resultCompanies.add(company.getName());
-                }
+
+                resultCompanies.add(new SupplierResponseDto(company.getId(), company.getName(), ""));
+//                if (company.getWilayas().contains(customer.getWilayas().get(0))
+//                        && isCategoryContains(company, customer.getCategories())) {
+//                    resultCompanies.add(company.getName());
+//                }
             }
 
             return ResponseEntity.ok(resultCompanies);
@@ -140,28 +142,46 @@ public class CustomerService {
     public CompanyDto getSupplierProfile(Integer id) {
         Company company = companyRepository.findById(id).orElseThrow();
         CompanyDto companyDto = CompanyDto.builder()
+                .id(company.getId())
                 .description(company.getDescription())
                 .address(company.getAddress())
                 .number(company.getNumber())
                 .email(company.getEmail())
                 .name(company.getName())
+                .wilaya(company.getWilayas().get(0))
                 .build();
         return companyDto;
     }
 
-    public String updateProfile(Integer id, ProfileRequestDto profileRequestDto) {
-        List<Wilaya> wilayas = new ArrayList<>();
-        wilayas.add(profileRequestDto.getWiliya());
-        Company company = companyRepository.findById(id).orElseThrow();
-        List<User> users = userRepository.findAllByCompany(company);
-        User user = users.get(0);
-        company.setAddress(profileRequestDto.getAddress());
-        company.setNumber(profileRequestDto.getNumber());
-        company.setWilayas(wilayas);
-        companyRepository.save(company);
-        user.setFullname(profileRequestDto.getFullName());
-        userRepository.save(user);
-        return "OK";
+    public Object updateProfile(Integer id, ProfileRequestDto profileRequestDto) {
+        try {
+            List<Wilaya> wilayas = new ArrayList<>();
+            wilayas.add(profileRequestDto.getWiliya());
+            Company company = companyRepository.findById(id).orElseThrow();
+            List<User> users = userRepository.findAllByCompany(company);
+            User user = users.get(0);
+            company.setAddress(profileRequestDto.getAddress());
+
+            company.setNumber(profileRequestDto.getNumber());
+            company.setWilayas(wilayas);
+            company.setName(profileRequestDto.getName());
+            company.setEmail(profileRequestDto.getEmail());
+            companyRepository.save(company);
+            user.setFullname(profileRequestDto.getFullName());
+            user.setImageUrl(profileRequestDto.getImageUrl());
+            userRepository.save(user);
+
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "profile saved successfully");
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", e.getMessage());
+            return ResponseEntity.status(500).body(errorResponse);
+        }
+
 
     }
 
