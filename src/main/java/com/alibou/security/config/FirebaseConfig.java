@@ -16,7 +16,7 @@ public class FirebaseConfig {
     @PostConstruct
     public void initialize() {
         try {
-            GoogleCredentials credentials = GoogleCredentials.fromStream(new FileInputStream("./serviceAccount.json"));
+            GoogleCredentials credentials = GoogleCredentials.fromStream(new FileInputStream("./ms-authentification/serviceAccount.json"));
             FirebaseOptions options = FirebaseOptions.builder()
                     .setCredentials(credentials)
                     .build();

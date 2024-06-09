@@ -30,6 +30,7 @@ public class Company {
     private String description;
     private String favorites;
     private String email;
+    private String imagePath;
     @Enumerated(EnumType.STRING)
     private StateType stateType;
     @Enumerated(EnumType.STRING)

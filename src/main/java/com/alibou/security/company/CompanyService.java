@@ -26,7 +26,7 @@ public class CompanyService {
         List<Company> companies = companyRepository.findAll();
         return companies.stream()
                 .filter(company -> !company.getName().equals("Supplier")) // Exclude the company with name "Supplier"
-                .map(company -> new CompanyResponseDto(company.getId(),company.getName(), company.getEmpoloyees().get(0).getEmail(), company.getStateType()))
+                .map(company -> new CompanyResponseDto(company.getId(),company.getName(), company.getEmail(), company.getStateType()))
                 .collect(Collectors.toList());
     }
 

@@ -39,5 +39,5 @@ public class RoleController {
         String errorMessage = e.getMessage();
         return new ResponseEntity<>(errorMessage, HttpStatus.BAD_REQUEST);
     }
-    
+
 }

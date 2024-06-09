@@ -45,6 +45,7 @@ public class AuthenticationService {
       Company company = Company.builder()
               .name(request.getCompanyName())
               .stateType(StateType.INACTIVE)
+              .email(request.getEmail())
               .companyType(CompanyType.SUPPLIER)
               .build();
       Company savedCompany = companyRepository.save(company);
