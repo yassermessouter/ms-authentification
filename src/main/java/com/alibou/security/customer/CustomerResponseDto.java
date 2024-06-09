@@ -21,4 +21,6 @@ public class CustomerResponseDto {
     private String number;
     private Wilaya wiliya;
     private String address;
+    private String imageUrl;
+    private String favoritesProducts;
 }

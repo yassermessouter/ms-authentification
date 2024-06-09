@@ -15,6 +15,9 @@ import java.util.List;
 public class ProfileRequestDto {
     private String fullName;//
     private String number;
+    private String name;
+    private String email;
+    private String imageUrl;
     private Wilaya wiliya;//
     private String address;//
 }

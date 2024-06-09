@@ -28,6 +28,7 @@ public class Company {
     private Boolean hasDeliveryDate;
     private String number;
     private String description;
+    private String favorites;
     private String email;
     @Enumerated(EnumType.STRING)
     private StateType stateType;

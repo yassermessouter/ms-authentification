@@ -68,4 +68,6 @@ public class CompanyService {
         Company company=companyRepository.findByName(name).orElseThrow();
         return company.getCompanyType();
     }
+
+
 }
